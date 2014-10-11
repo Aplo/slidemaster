@@ -20,17 +20,15 @@ def check():
   print('check')
   if os.path.exists('/root/slidemaster/NEXT'):
     os.remove('/root/slidemaster/NEXT')
+    current += 1
     print('Next slide')
   elif os.path.exists('/root/slidemaster/PREVIOUS'):
     os.remove('/root/slidemaster/PREVIOUS')
+    current -= 1
     print('Previous slide')
 
-def create():
-  Timer(0.5, create).start()
-  os.system('touch /root/slidemaster/NEXT')
-
 @route('/')
-def hello():
+def presentation():
   return """<!DOCTYPE html>
 <html>
   <head>
@@ -57,14 +55,40 @@ def hello():
       height: 100%;
     }
     </style>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      setInterval(
+        function() {
+          $.ajax({
+            url: 'http://104.131.83.142/',
+            cache: false,
+            dataType: 'html',
+            success: function(data) {
+              actual = data.slice(-1);
+              current = """ + str(current) + """;
+              if (actual != current) {
+                location.reload();
+              }
+            }
+          });
+        },
+      500);
+    </script>
   </head>
   <body>
     <div id="content">
-      <iframe id="frame" src=\"""" + url + """3\"></iframe>
+      <iframe id="frame" src=\"""" + url + str(current) + """\"></iframe>
     </div>
   </body>
-</html>"""
+</html>""" + str(current)
 
-create()
+@route('/next')
+def next():
+  os.system('touch /root/slidemaster/NEXT')
+
+@route('/previous')
+def previous():
+  os.system('touch /root/slidemaster/PREVIOUS')
+
 check()
 run(host='104.131.83.142', port=80, debug=True)
