@@ -10,7 +10,6 @@ presentations = {}
 def retrieve_from_options(key):
   with open('options.txt', 'r+') as f:
     for line in f.readlines():
-      print(line)
       lineKey = line.split(' = ')[0]
       lineValue = line.split(' = ')[1].replace('\n', '')
       if lineKey == key:
@@ -54,8 +53,6 @@ def presentation():
     }
     </style>
     <script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
-    <script src="http://bililite.com/inc/jquery.sendkeys.js" type="text/javascript"></script>
-    <script src="http://bililite.com/inc/bililiteRange.js" type="text/javascript"></script>
     <script type="text/javascript">
       function unhide() {
         $("#loading").removeAttr('id');
@@ -93,7 +90,7 @@ def page():
 @route('/files')
 def files():
   connection = http.client.HTTPSConnection('www.googleapis.com', 443, timeout = 30)
-  headers = {"Authorization":"Bearer %s" % retrieve_from_options('api_token')}
+  headers = {"Authorization": "Bearer %s" % retrieve_from_options('api_token')}
   connection.request('GET', '/drive/v2/files', None, headers)
   try:
     response = connection.getresponse()
