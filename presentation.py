@@ -98,7 +98,6 @@ def files():
   try:
     response = connection.getresponse()
     content = response.read()
-    print(retrieve_from_options('api_token'))
     return content
   except:
     print('Exception during request')
