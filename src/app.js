@@ -33,7 +33,7 @@ ajax(
   },
   function(data) {
     for (var i = 0; i < data.items.length; i++) {
-      if (data.items[i].mimeType == 'application/vnd.google-apps.presentation' && data.items[i].shared === true) {
+      if (data.items[i].mimeType == 'application/vnd.google-apps.presentation') {
         var title = data.items[i].title;
         titles.push({
           title: title,
@@ -49,7 +49,7 @@ ajax(
     });
     
     main.on('select', function(e) {
-      var slide = 0;
+      var slide = 1;
       
       console.log(titles[e.itemIndex].title);
       var uid = Math.random().toString(36).substr(2, 4);
@@ -65,13 +65,18 @@ ajax(
       );
       
       card.on('click', function(ev) {
-        slide += ev.button == 'up' ? 1 : -1;
+        if (ev.button == 'up') {
+          slide += 1;
+        } else if (ev.button == 'select') {
+          slide = 1;
+        } else if (ev.button == 'select') {
+          slide -= 1;
+        }
+        
+        card.body('id: ' + uid + '\nSlide: ' + slide);
         ajax(
           {
             url: url + '/page?uid=' + uid + '&page=' + slide
-          },
-          function(data) {
-            card.body('id: ' + uid + '\nSlide: ' + slide);
           }
         );
       });
