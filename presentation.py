@@ -1,17 +1,15 @@
 from bottle import route, run, request
-from bs4 import BeautifulSoup
+import http.client
 import urllib
 import sys
 import os
 from threading import Timer
 
-url = 'http://docs.google.com/presentation/embed?id=1PE-56ZA-Ngm-exuqYLiDR0H19pLXgxK4SzkaKzaJCls&slide='
 current = 1
-total = 0
+presentations = {}
 
-page = urllib.request.urlopen(url).read()
-bs = BeautifulSoup(page)
-print(bs.find(id=':s'))
+def url(uid, slide):
+  return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid], slide)
 
 def check():
   global current
@@ -69,7 +67,7 @@ def presentation():
       setInterval(
         function() {
           $.ajax({
-            url: 'http://104.131.83.142/',
+            url: 'http://sm.aplo.io/',
             cache: false,
             dataType: 'html',
             success: function(data) {
@@ -78,7 +76,7 @@ def presentation():
                 current = actual;
                 //current = actual;
                 //console.log(actual);
-                $("#content").prepend("<iframe id='loading' class='frame' src='""" + url + """\" + current + \"' allowfullscreen='true' onload='unhide();'></iframe>");
+                $("#content").prepend("<iframe id='loading' class='frame' src='""" + url(request.query['uid'], str(current)) + """\" + current + \"' allowfullscreen='true' onload='unhide();'></iframe>");
               }
             }
           });
@@ -88,7 +86,7 @@ def presentation():
   </head>
   <body>
     <div id="content">
-      <iframe class="frame" src=\"""" + url + str(current) + """\" allowfullscreen="true"></iframe>
+      <iframe class="frame" src=\"""" + url(request.query['uid'], str(current)) + """\" allowfullscreen="true"></iframe>
     </div>
   </body>
 </html>""" + str(current)
@@ -100,6 +98,24 @@ def next():
 @route('/previous')
 def previous():
   os.system('touch /root/slidemaster/PREVIOUS')
+
+@route('/files')
+def files():
+  connection = http.client.HTTPSConnection('www.googleapis.com', 443, timeout = 30)
+  headers = {"Authorization":"Bearer ya29.nABnpZBILnU65PKjF42M9sbDZekIhGrj5JfvmtJNnlzBXjXMgARpN_Kb"}
+  connection.request('GET', '/drive/v2/files', None, headers)
+  try:
+    response = connection.getresponse()
+    content = response.read()
+    return content
+  except:
+    print('Exception during request')
+
+@route('/create')
+def create():
+  uid = request.query['uid']
+  sid = request.query['sid']
+  presentations[uid] = sid
 
 check()
 run(host='104.131.83.142', port=80, debug=True)
