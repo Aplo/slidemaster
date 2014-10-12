@@ -117,12 +117,6 @@ def presentation():
       display: block;
     }
     </style>
-    <script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-    $("#form").submit(function(e) {
-      e.preventDefault();
-    });
-    </script>
   </head>
   <body>
     <form id="form">
