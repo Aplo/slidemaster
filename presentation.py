@@ -5,27 +5,25 @@ import sys
 import os
 from threading import Timer
 
-url = 'https://docs.google.com/presentation/embed?id=1PE-56ZA-Ngm-exuqYLiDR0H19pLXgxK4SzkaKzaJCls&slide='
+url = 'http://docs.google.com/presentation/embed?id=1PE-56ZA-Ngm-exuqYLiDR0H19pLXgxK4SzkaKzaJCls&slide='
 current = 1
 total = 0
 
 page = urllib.request.urlopen(url).read()
 bs = BeautifulSoup(page)
 print(bs.find(id=':s'))
-#sys.exit(0)
 
 def check():
   global current
   Timer(0.1, check).start()
-  print('check')
   if os.path.exists('/root/slidemaster/NEXT'):
     os.remove('/root/slidemaster/NEXT')
     current += 1
-    print('Next slide')
+    print('Slide %s' % current)
   elif os.path.exists('/root/slidemaster/PREVIOUS'):
     os.remove('/root/slidemaster/PREVIOUS')
     current -= 1
-    print('Previous slide')
+    print('Previous slide %s' % current)
 
 @route('/')
 def presentation():
@@ -49,14 +47,25 @@ def presentation():
       top: 0;
     }
 
-    #frame {
+    .frame {
       border: 0;
       width: 100%;
       height: 100%;
     }
+
+    #loading {
+      display: none;
+    }
     </style>
     <script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+    <script src="http://bililite.com/inc/jquery.sendkeys.js" type="text/javascript"></script>
+    <script src="http://bililite.com/inc/bililiteRange.js" type="text/javascript"></script>
     <script type="text/javascript">
+      function unhide() {
+        $("#loading").removeAttr('id');
+        console.log('unhid');
+      }
+      var current = """ + str(current) + """;
       setInterval(
         function() {
           $.ajax({
@@ -64,10 +73,12 @@ def presentation():
             cache: false,
             dataType: 'html',
             success: function(data) {
-              actual = data.slice(-1);
-              current = """ + str(current) + """;
+              var actual = data.slice(-1);
               if (actual != current) {
-                location.reload();
+                current = actual;
+                //current = actual;
+                //console.log(actual);
+                $("#content").prepend("<iframe id='loading' class='frame' src='""" + url + """\" + current + \"' allowfullscreen='true' onload='unhide();'></iframe>");
               }
             }
           });
@@ -77,7 +88,7 @@ def presentation():
   </head>
   <body>
     <div id="content">
-      <iframe id="frame" src=\"""" + url + str(current) + """\"></iframe>
+      <iframe class="frame" src=\"""" + url + str(current) + """\" allowfullscreen="true"></iframe>
     </div>
   </body>
 </html>""" + str(current)
