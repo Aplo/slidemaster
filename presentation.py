@@ -8,7 +8,7 @@ from threading import Timer
 current = 1
 presentations = {}
 
-def url(uid, slide):
+def url(uid, slide=''):
   return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid], slide)
 
 def check():
@@ -61,22 +61,19 @@ def presentation():
     <script type="text/javascript">
       function unhide() {
         $("#loading").removeAttr('id');
-        console.log('unhid');
       }
       var current = """ + str(current) + """;
       setInterval(
         function() {
           $.ajax({
-            url: 'http://sm.aplo.io/',
+            url: 'http://sm.aplo.io/?uid=""" + request.query['uid'] + """',
             cache: false,
             dataType: 'html',
             success: function(data) {
               var actual = data.slice(-1);
               if (actual != current) {
                 current = actual;
-                //current = actual;
-                //console.log(actual);
-                $("#content").prepend("<iframe id='loading' class='frame' src='""" + url(request.query['uid'], str(current)) + """\" + current + \"' allowfullscreen='true' onload='unhide();'></iframe>");
+                $("#content").prepend("<iframe id='loading' class='frame' src='""" + url(request.query['uid']) + """\" + current + \"' allowfullscreen='true' onload='unhide();'></iframe>");
               }
             }
           });
@@ -102,7 +99,7 @@ def previous():
 @route('/files')
 def files():
   connection = http.client.HTTPSConnection('www.googleapis.com', 443, timeout = 30)
-  headers = {"Authorization":"Bearer ya29.nABnpZBILnU65PKjF42M9sbDZekIhGrj5JfvmtJNnlzBXjXMgARpN_Kb"}
+  headers = {"Authorization":"Bearer ya29.nAB_dV55T0hJIhj36_HOuyT2G6s9ZKaTuXeRF96iiT95cC5DiD4crg5R"}
   connection.request('GET', '/drive/v2/files', None, headers)
   try:
     response = connection.getresponse()
