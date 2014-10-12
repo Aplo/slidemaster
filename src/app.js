@@ -8,17 +8,28 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
 
-var cslide = 0;
-var tslides = 1;
+var slide = 1;
+var url = 'http://104.131.83.142';
 
 var main = new UI.Card({
   title: 'Slidemaster',
-  //icon: 'images/menu_icon.png',
-  //subtitle: 'Hello World!',
-  body: 'Slide ' + cslide + ' of ' + tslides
+  body: 'Slide ' + slide
 });
 
 main.show();
+
+main.on('click', function(e) {
+  slide += e.button == 'up' ? 1 : -1;
+  main.body('Slide ' + slide);
+  ajax(
+    {
+      url: url + (e.button == 'up' ? '/next' : '/previous')
+    },
+    function(data) {
+      main.body('Slide ' + slide);
+    }
+  );
+});
 
 /*main.on('click', 'up', function(e) {
   var menu = new UI.Menu({
