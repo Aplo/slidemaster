@@ -8,14 +8,15 @@ from threading import Timer
 presentations = {}
 
 def retrieve_from_options(key):
-    with open('options.txt', 'r+') as f:
-        for line in f.readlines():
-            lineKey = line.split(' = ')[0]
-            lineValue = line.split(' = ')[1].replace('\n', '')
-            if lineKey == key:
-                if lineValue != 'XXXXXXXXXX':
-                    return lineValue
-    return None
+  with open('options.txt', 'r+') as f:
+    for line in f.readlines():
+      print(line)
+      lineKey = line.split(' = ')[0]
+      lineValue = line.split(' = ')[1].replace('\n', '')
+      if lineKey == key:
+        if lineValue != 'XXXXXXXXXX':
+          return lineValue
+  return None
 
 def url(uid, slide=''):
   return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid][0], slide)
@@ -97,6 +98,7 @@ def files():
   try:
     response = connection.getresponse()
     content = response.read()
+    print(retrieve_from_options('api_token'))
     return content
   except:
     print('Exception during request')
