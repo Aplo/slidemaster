@@ -10,21 +10,6 @@ presentations = {}
 def url(uid, slide=''):
   return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid][0], slide)
 
-def check():
-  Timer(0.1, check).start()
-  for fn in os.listdir('.'):
-    if os.path.isfile(fn[:4]):
-      print('test1')
-      for key in presentations.keys():
-        print('test2')
-        if key == fn[:4]:
-          print('test3')
-          #lazy
-          print(key)
-          os.system('rm /root/slidemaster/' + key + '*')
-          page = fn[5]
-          presentations[key] = [presentations[key][0], page]
-
 @route('/')
 def presentation():
   return """<!DOCTYPE html>
@@ -92,7 +77,7 @@ def presentation():
 
 @route('/page')
 def page():
-  os.system('touch /root/slidemaster/' + request.query['uid'] + '-' + request.query['page'])
+  presentations[request.query['uid']] = [presentations[request.query['uid']][0], request.query['page']]
 
 @route('/files')
 def files():
@@ -112,5 +97,4 @@ def create():
   sid = request.query['sid']
   presentations[uid] = [sid, '1']
 
-check()
 run(host='104.131.83.142', port=80, debug=True)
