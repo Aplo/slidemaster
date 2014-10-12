@@ -5,23 +5,25 @@ import sys
 import os
 from threading import Timer
 
-current = 1
 presentations = {}
 
 def url(uid, slide=''):
-  return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid], slide)
+  return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid][0], slide)
 
 def check():
-  global current
   Timer(0.1, check).start()
-  if os.path.exists('/root/slidemaster/NEXT'):
-    os.remove('/root/slidemaster/NEXT')
-    current += 1
-    print('Slide %s' % current)
-  elif os.path.exists('/root/slidemaster/PREVIOUS'):
-    os.remove('/root/slidemaster/PREVIOUS')
-    current -= 1
-    print('Previous slide %s' % current)
+  for fn in os.listdir('.'):
+    if os.path.isfile(fn[:4]):
+      print('test1')
+      for key in presentations.keys():
+        print('test2')
+        if key == fn[:4]:
+          print('test3')
+          #lazy
+          print(key)
+          os.system('rm /root/slidemaster/' + key + '*')
+          page = fn[5]
+          presentations[key] = [presentations[key][0], page]
 
 @route('/')
 def presentation():
@@ -62,7 +64,7 @@ def presentation():
       function unhide() {
         $("#loading").removeAttr('id');
       }
-      var current = """ + str(current) + """;
+      var current = """ + presentations[request.query['uid']][1] + """;
       setInterval(
         function() {
           $.ajax({
@@ -83,23 +85,19 @@ def presentation():
   </head>
   <body>
     <div id="content">
-      <iframe class="frame" src=\"""" + url(request.query['uid'], str(current)) + """\" allowfullscreen="true"></iframe>
+      <iframe class="frame" src=\"""" + url(request.query['uid'], presentations[request.query['uid']][1]) + """\" allowfullscreen="true"></iframe>
     </div>
   </body>
-</html>""" + str(current)
+</html>""" + presentations[request.query['uid']][1]
 
-@route('/next')
-def next():
-  os.system('touch /root/slidemaster/NEXT')
-
-@route('/previous')
-def previous():
-  os.system('touch /root/slidemaster/PREVIOUS')
+@route('/page')
+def page():
+  os.system('touch /root/slidemaster/' + request.query['uid'] + '-' + request.query['page'])
 
 @route('/files')
 def files():
   connection = http.client.HTTPSConnection('www.googleapis.com', 443, timeout = 30)
-  headers = {"Authorization":"Bearer ya29.nAB_dV55T0hJIhj36_HOuyT2G6s9ZKaTuXeRF96iiT95cC5DiD4crg5R"}
+  headers = {"Authorization":"Bearer ya29.nADuYkEQPjCcvrCD6m_v6I1BrHQVLDa2svdy9KIlHXGqg-iOMNAGoqh3"}
   connection.request('GET', '/drive/v2/files', None, headers)
   try:
     response = connection.getresponse()
@@ -112,7 +110,7 @@ def files():
 def create():
   uid = request.query['uid']
   sid = request.query['sid']
-  presentations[uid] = sid
+  presentations[uid] = [sid, '1']
 
 check()
 run(host='104.131.83.142', port=80, debug=True)
