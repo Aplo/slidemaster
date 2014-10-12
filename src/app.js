@@ -8,20 +8,24 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
 
-var slide = 1;
 var url = 'http://sm.aplo.io';
 
-/*var main = new UI.Card({
-  title: 'Slidemaster',
-  body: 'Slide ' + slide
+var splash = new UI.Window();
+var textfield = new UI.Text({
+  position: new Vector2(0, 50),
+  size: new Vector2(144, 30),
+  font: 'gothic-24-bold',
+  text: 'Loading...',
+  textAlign: 'center'
 });
-
-main.show();*/
+splash.add(textfield);
+splash.show();
 
 var main = new UI.Menu();
 
 var titles = [];
 var ids = [];
+
 ajax(
   {
     url: url + '/files',
@@ -29,7 +33,7 @@ ajax(
   },
   function(data) {
     for (var i = 0; i < data.items.length; i++) {
-      if (data.items[i].mimeType == 'application/vnd.google-apps.presentation') {
+      if (data.items[i].mimeType == 'application/vnd.google-apps.presentation' && data.items[i].shared === true) {
         var title = data.items[i].title;
         titles.push({
           title: title,
@@ -37,6 +41,7 @@ ajax(
         ids.push(data.items[i].id);
       }
     }
+    
     main = new UI.Menu({
       sections: [{
         items: titles
@@ -44,54 +49,37 @@ ajax(
     });
     
     main.on('select', function(e) {
+      var slide = 0;
+      
       console.log(titles[e.itemIndex].title);
       var uid = Math.random().toString(36).substr(2, 4);
       var sid = ids[e.itemIndex];
       var card = new UI.Card({
         title: titles[e.itemIndex].title,
-        body: 'id: ' + uid + '\nSlide 1'
+        body: 'id: ' + uid + '\nSlide: 1'
       });
       ajax(
         {
           url: url + '/create?uid=' + uid + '&sid=' + sid
         }
       );
+      
+      card.on('click', function(ev) {
+        slide += ev.button == 'up' ? 1 : -1;
+        ajax(
+          {
+            url: url + '/page?uid=' + uid + '&page=' + slide
+          },
+          function(data) {
+            card.body('id: ' + uid + '\nSlide: ' + slide);
+          }
+        );
+      });
+      
       card.show();
     });
     
     main.show();
+    splash.hide();
   }
 );
-
-/*main.on('click', function(e) {
-  slide += e.button == 'up' ? 1 : -1;
-  main.body('Slide ' + slide);
-  ajax(
-    {
-      url: url + (e.button == 'up' ? '/next' : '/previous')
-    },
-    function(data) {
-      main.body('Slide ' + slide);
-    }
-  );
-});*/
-
-/*main.on('click', 'up', function(e) {
-  var menu = new UI.Menu({
-    sections: [{
-      items: [{
-        title: 'Pebble.js',
-        icon: 'images/menu_icon.png',
-        subtitle: 'Can do Menus'
-      }, {
-        title: 'Second Item',
-        subtitle: 'Subtitle Text'
-      }]
-    }]
-  });
-  menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
-  });
-  menu.show();
-});*/
