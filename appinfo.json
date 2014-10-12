@@ -9,8 +9,7 @@
     "resources": {
         "media": [
             {
-                "menuIcon": true,
-                "file": "images/28.png",
+                "file": "images/menu_icon.png",
                 "name": "IMAGE_MENU_ICON",
                 "type": "png"
             },

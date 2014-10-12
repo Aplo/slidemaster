@@ -69,7 +69,7 @@ ajax(
           slide += 1;
         } else if (ev.button == 'select') {
           slide = 1;
-        } else if (ev.button == 'select') {
+        } else if (ev.button == 'down') {
           slide -= 1;
         }
         
