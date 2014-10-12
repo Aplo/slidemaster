@@ -7,6 +7,16 @@ from threading import Timer
 
 presentations = {}
 
+def retrieve_from_options(key):
+    with open('options.txt', 'r+') as f:
+        for line in f.readlines():
+            lineKey = line.split(' = ')[0]
+            lineValue = line.split(' = ')[1].replace('\n', '')
+            if lineKey == key:
+                if lineValue != 'XXXXXXXXXX':
+                    return lineValue
+    return None
+
 def url(uid, slide=''):
   return 'http://docs.google.com/presentation/embed?id=%s&slide=%s' % (presentations[uid][0], slide)
 
@@ -82,7 +92,7 @@ def page():
 @route('/files')
 def files():
   connection = http.client.HTTPSConnection('www.googleapis.com', 443, timeout = 30)
-  headers = {"Authorization":"Bearer ya29.nADuYkEQPjCcvrCD6m_v6I1BrHQVLDa2svdy9KIlHXGqg-iOMNAGoqh3"}
+  headers = {"Authorization":"Bearer %s" % retrieve_from_options('api_token')}
   connection.request('GET', '/drive/v2/files', None, headers)
   try:
     response = connection.getresponse()
