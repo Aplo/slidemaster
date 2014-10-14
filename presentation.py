@@ -1,8 +1,5 @@
 from bottle import route, run, request
 import http.client
-import sys
-import os
-from threading import Timer
 
 presentations = {}
 
