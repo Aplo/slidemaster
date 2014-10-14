@@ -1,6 +1,5 @@
 from bottle import route, run, request
 import http.client
-import urllib
 import sys
 import os
 from threading import Timer
